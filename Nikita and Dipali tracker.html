@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Relocation Job Tracker · Nikita & Dipali</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f3ee;--card:#fff;--ink:#1c1d1a;--ink-soft:#5c5d57;--line:#e4e2da;--line-strong:#d2cfc4;
+    --pitch-bg:#e9f3ea;--pitch-ink:#3a7a4d;--break-bg:#fdf4df;--break-ink:#9a7320;--tip-bg:#f7f6f1;
+    --pill-bg:#f0efe8;--hi:#d9533a;--hi-bg:#fbe7e2;--visa:#2f7a4a;--visa-bg:#e4f1e7;
+    --bar:#4a9d5f;--bar-track:#e8e6dd;--btn:#1f2a23;--btn-ink:#f4f3ee;
+    --accent-n:#2f6f8f;--accent-d:#7a4a86;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:14px;line-height:1.55;padding:26px 16px 80px}
+  .wrap{max-width:1180px;margin:0 auto}
+  h1{font-family:'Space Mono',monospace;font-size:23px;font-weight:700;margin:0 0 4px;letter-spacing:-.5px}
+  .sub{color:var(--ink-soft);font-size:12.5px;margin:0}
+  .tabs{display:flex;gap:8px;margin:18px 0 6px;flex-wrap:wrap}
+  .tab{font-weight:600;font-size:13px;padding:9px 16px;border:1px solid var(--line-strong);background:var(--card);border-radius:10px;cursor:pointer;color:var(--ink-soft);transition:.15s;font-family:inherit}
+  .tab[data-active="true"]{background:var(--btn);color:var(--btn-ink);border-color:var(--btn)}
+  .tab .count{opacity:.6;font-weight:400}
+  .lede{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:6px 0 14px;font-size:12.4px;color:var(--ink-soft)}
+  .lede b{color:var(--ink)} .lede a{color:var(--accent-n)} .lede .strip{height:3px;border-radius:3px;margin-bottom:11px}
+  .filters{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 20px}
+  .fchip{font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid var(--line-strong);background:var(--card);color:var(--ink-soft);cursor:pointer;font-family:inherit}
+  .fchip[data-on="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-bottom:18px}
+  .chead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+  .co{font-family:'Space Mono',monospace;font-weight:700;font-size:19px;letter-spacing:-.3px;display:inline-block;padding-bottom:1px}
+  .meta{color:var(--ink-soft);font-size:12.3px;margin-top:3px}.meta .role{color:var(--ink);font-weight:500}
+  .stagewrap{text-align:right;font-size:11px;color:var(--ink-soft);min-width:148px}
+  .stagewrap label{display:block;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+  select,input,textarea{font-family:inherit;font-size:12.5px;color:var(--ink);background:var(--card);border:1px solid var(--line-strong);border-radius:8px;padding:7px 9px;width:100%}
+  textarea{resize:vertical;min-height:50px}input::placeholder,textarea::placeholder{color:#b3b0a6}
+  .fit{margin:6px 0 2px;text-align:right}.fit .lab{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:1px}.fit .pct{font-weight:700;margin-left:6px}
+  .track{height:6px;background:var(--bar-track);border-radius:4px;margin-top:5px;overflow:hidden}.track>i{display:block;height:100%;border-radius:4px}
+  .tags{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 4px}
+  .pill{font-size:11px;font-weight:600;padding:4px 9px;border-radius:999px;background:var(--pill-bg);color:var(--ink-soft);border:1px solid var(--line)}
+  .pill.hi{background:var(--hi-bg);color:var(--hi);border-color:#f3cabf}
+  .pill.cat{background:#eef1f4;color:#456;border-color:#dde3e8}
+  .box{border-radius:11px;padding:12px 14px;margin-top:12px}
+  .box h4{margin:0 0 5px;font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;font-weight:700}
+  .box p{margin:0;font-size:12.5px;line-height:1.55}
+  .box.pitch{background:var(--pitch-bg)}.box.pitch h4{color:var(--pitch-ink)}
+  .box.brk{background:var(--break-bg)}.box.brk h4{color:var(--break-ink)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  .box.tip{background:var(--tip-bg);border:1px solid var(--line)}.box.tip h4{color:var(--ink-soft)}.box.tip p{color:var(--ink-soft)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  .field label{display:block;font-size:10px;letter-spacing:1.1px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px}.field.full{grid-column:1/-1}
+  .links{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .links a{text-decoration:none;font-size:11.5px;font-weight:600;padding:8px 13px;border-radius:9px;border:1px solid var(--line-strong);color:var(--ink);background:var(--card);transition:.15s}
+  .links a.primary{background:var(--btn);color:var(--btn-ink);border-color:var(--btn)}.links a:hover{transform:translateY(-1px)}
+  .saved{font-size:10px;color:var(--bar);opacity:0;transition:.3s;margin-left:8px}.saved.show{opacity:1}
+  .grouphead{font-family:'Space Mono';font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft);margin:20px 2px 12px;display:flex;align-items:center;gap:10px}
+  .grouphead:before{content:"";flex:0 0 22px;height:2px;background:var(--line-strong)}
+  @media(max-width:720px){.two,.grid2{grid-template-columns:1fr}.chead{flex-direction:column}.stagewrap{text-align:left}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Relocation Job Tracker</h1>
+    <p class="sub">Leeds vs Manchester · target companies for Nikita &amp; Dipali · edits save automatically on this device</p>
+    <div class="tabs" id="tabs"></div>
+  </header>
+  <div id="lede" class="lede"></div>
+  <div class="filters" id="filters"></div>
+  <div id="cards"></div>
+</div>
+
+<script>
+const REGISTER="https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers";
+
+const PEOPLE={
+ nikita:{name:"Nikita",accent:"var(--accent-n)",
+  lede:"<b>Commercial Strategy &amp; Growth</b> · MBA Bath · available Sep 2026 · Graduate Route = no sponsorship needed for 2 yrs (sponsorship only matters yr 3+). No betting/fintech brands. Sponsor tags are best-guess — confirm against the <a href='"+REGISTER+"' target='_blank'>gov.uk sponsor register</a>. Some top consultancies are London-anchored with Northern offices/travel; the location tag flags which.",
+  cats:["Consulting","B2C","B2B / Tech","Climate & Purpose","Smaller / Scale-up"],
+  roles:[
+   {cat:"Consulting",co:"McKinsey & Company",loc:"Manchester / London",role:"Associate / Business Analyst",sal:"£75K–£110K",prio:"High",fit:70,sponsor:"known",tags:["MBB","Strategy"],pitch:"Your Da Milano 'recommended against expansion' call is exactly the commercial judgement MBB screens for. Lead with structured problem-solving, not marketing.",brk:"Apply via mckinsey.com; the bottleneck is the case + PEI, not the CV. Start case prep now.",tip:"Manchester office runs Northern engagements. Bath MBA is a recognised feeder.",prep:"Drill profitability, market-entry and market-sizing cases. Have 2 PEI leadership stories ready."},
+   {cat:"Consulting",co:"Boston Consulting Group",loc:"Manchester / London",role:"Associate / Consultant",sal:"£75K–£105K",prio:"High",fit:69,sponsor:"known",tags:["MBB","Strategy"],pitch:"BCG values commercial creativity; your zero-to-£30K MRR builds and unit-economics work translate well.",brk:"Apply via careers.bcg.com; the online case (Casey) is stage one.",tip:"BCG Manchester is growing fast — apply to the Northern office directly.",prep:"Practise structuring ambiguous prompts out loud; they test communication as much as maths."},
+   {cat:"Consulting",co:"Bain & Company",loc:"London (travel role)",role:"Associate Consultant",sal:"£75K–£105K",prio:"Med",fit:66,sponsor:"known",tags:["MBB","Strategy"],pitch:"Bain leans commercial/PE diligence — your due-diligence-style modelling fits, but it's London-anchored so weigh the relocation tension.",brk:"Apply via bain.com; expect strong case rounds.",tip:"Mostly London base with national travel — only pursue if you'll flex on city.",prep:"PE-style profit and due-diligence cases; comfort with numbers under pressure."},
+   {cat:"Consulting",co:"Monitor Deloitte",loc:"Manchester / Leeds",role:"Strategy Consultant",sal:"£55K–£80K",prio:"High",fit:76,sponsor:"known",tags:["Big 4","Strategy"],pitch:"Big 4 strategy is your sweet spot — MBA + real client P&L work. Both Northern offices hire here.",brk:"Apply via deloitte.com (Monitor/Strategy & Business Design).",tip:"Search Deloitte Bath MBA alumni for referrals; Leeds & Manchester both staffed.",prep:"Cases plus 'tell me about commercial impact you drove' — use the 133% revenue story."},
+   {cat:"Consulting",co:"PwC Strategy&",loc:"Manchester / Leeds",role:"Strategy& Associate",sal:"£52K–£78K",prio:"High",fit:75,sponsor:"known",tags:["Big 4","Strategy"],pitch:"Strategy& wants commercial rigour with delivery; your GTM playbooks and consultancy projects map directly.",brk:"Apply via pwc.co.uk; known UK sponsor.",tip:"Both offices recruit; tailor to the deals/strategy practice.",prep:"Market-entry and growth-strategy cases; quantify everything."},
+   {cat:"Consulting",co:"EY-Parthenon",loc:"Manchester / Leeds",role:"Strategy Consultant",sal:"£52K–£80K",prio:"High",fit:74,sponsor:"known",tags:["Big 4","Strategy"],pitch:"Parthenon does commercial diligence and growth strategy — your unit-economics and market-sizing work is their language.",brk:"Apply via ey.com (Parthenon/Strategy).",tip:"Strong in commercial due diligence; pitch the Da Milano analysis.",prep:"CDD-style cases: is this a good market, will this business hit plan?"},
+   {cat:"Consulting",co:"KPMG",loc:"Leeds / Manchester",role:"Deal Advisory / Strategy",sal:"£50K–£75K",prio:"Med-High",fit:71,sponsor:"known",tags:["Big 4","Strategy"],pitch:"Leeds is a major KPMG hub. Frame yourself for Strategy/Deal Advisory using your commercial modelling.",brk:"Apply via kpmgcareers.co.uk; large Leeds presence.",tip:"Leeds office is one of their biggest outside London.",prep:"Commercial cases + competency interview; lead with measurable outcomes."},
+   {cat:"Consulting",co:"Accenture Song / Strategy",loc:"Manchester",role:"Strategy / Growth Consultant",sal:"£50K–£80K",prio:"High",fit:78,sponsor:"known",tags:["Strategy","Marketing","Tech"],pitch:"Accenture Song blends strategy + marketing — your exact hybrid. Big Manchester base. Lead with brand+commercial.",brk:"Apply via accenture.com; huge UK sponsor with northern hubs.",tip:"Song = customer/marketing strategy; perfect bridge from your background.",prep:"Customer strategy + GTM cases; bring a brand teardown."},
+   {cat:"Consulting",co:"Simon-Kucher",loc:"London / national",role:"Consultant (Pricing & Growth)",sal:"£50K–£75K",prio:"Med-High",fit:77,sponsor:"likely",tags:["Pricing","Growth"],pitch:"Pricing/commercial specialists — your pricing-architecture work on market entry is a direct hook.",brk:"Apply via simon-kucher.com; emphasise pricing and unit economics.",tip:"London-anchored; clarify remote/Northern feasibility early.",prep:"Pricing cases and willingness-to-pay logic; reference your UAE pricing playbooks."},
+   {cat:"Consulting",co:"OC&C Strategy Consultants",loc:"London (travel role)",role:"Associate Consultant",sal:"£55K–£80K",prio:"Med",fit:70,sponsor:"likely",tags:["Strategy","Consumer"],pitch:"OC&C is strong in retail/consumer — your 16+ consumer-brand portfolio is rare and relevant.",brk:"Apply via occstrategy.com; consumer practice fit.",tip:"London base; consumer-goods focus suits your CV.",prep:"Consumer growth and retail strategy cases."},
+   {cat:"Consulting",co:"Baringa Partners",loc:"Manchester / London",role:"Consultant (Energy / Customer)",sal:"£52K–£78K",prio:"High",fit:79,sponsor:"likely",tags:["Energy","Strategy"],pitch:"A leader in energy & climate consulting — your UrbanChain renewable work + sustainability projects make this a standout fit.",brk:"Apply via baringa.com; flag the energy/climate angle hard.",tip:"Energy practice aligns with your purpose lean and BCG climate sim.",prep:"Energy-transition commercial cases; know UK energy-market basics."},
+   {cat:"Consulting",co:"PA Consulting",loc:"Manchester",role:"Strategy & Growth Consultant",sal:"£50K–£75K",prio:"Med-High",fit:72,sponsor:"likely",tags:["Innovation","Strategy"],pitch:"Innovation-led consultancy with a sustainability focus; your GTM-from-scratch experience fits their build mindset.",brk:"Apply via paconsulting.com.",tip:"Strong sustainability and consumer practices.",prep:"Growth + innovation cases; show a launch you took from zero."},
+
+   {cat:"B2C",co:"THG (The Hut Group)",loc:"Manchester",role:"Commercial / Growth Manager",sal:"£50K–£72K",prio:"High",fit:82,sponsor:"likely",tags:["Ecommerce","D2C","Beauty"],pitch:"D2C engine across beauty/wellness — Bath & Body Works and your launch record map straight on.",brk:"Apply via thg.com/careers; find a current THG growth person for a warm intro.",tip:"Small Manchester D2C scene — one referral shifts the odds.",prep:"CAC/AOV/contribution margin on a real brand; bring an A/B test."},
+   {cat:"B2C",co:"Auto Trader",loc:"Manchester",role:"Commercial Strategy / Growth Manager",sal:"£55K–£78K",prio:"High",fit:77,sponsor:"known",tags:["Marketplace","Strategy"],pitch:"FTSE 100, Manchester HQ, real strategy roles. Lead with MBA consultancy + market-entry modelling.",brk:"careers.autotrader.co.uk; tailor to their competency framework, apply early.",tip:"Look for Bath MBA alumni in Strategy/Insight.",prep:"Commercial exercise likely; practise market-sizing."},
+   {cat:"B2C",co:"boohoo group",loc:"Manchester",role:"Brand / Commercial Manager",sal:"£45K–£65K",prio:"Med-High",fit:79,sponsor:"likely",tags:["Fashion","D2C"],pitch:"Fast-fashion D2C at scale — your fashion portfolio (Forever New, Vero Moda, Only) is directly relevant.",brk:"Apply via boohoogroup.com careers.",tip:"Manchester HQ; fashion/commercial roles turn over often.",prep:"Trading, inventory and launch cadence; reference your clearance-vs-new-season framework."},
+   {cat:"B2C",co:"JD Sports Fashion",loc:"Bury / Manchester",role:"Commercial / Trading Manager",sal:"£45K–£68K",prio:"Med-High",fit:74,sponsor:"likely",tags:["Retail","Footwear"],pitch:"Global retailer; your ASICS/Onitsuka/Aldo footwear work and trading rigour fit their commercial teams.",brk:"Apply via jdplc.com careers.",tip:"HQ near Manchester; retail-commercial roles.",prep:"Range, margin and sell-through thinking."},
+   {cat:"B2C",co:"Co-op",loc:"Manchester",role:"Commercial Strategy / Customer Manager",sal:"£48K–£68K",prio:"Med-High",fit:73,sponsor:"likely",tags:["Retail","Purpose"],pitch:"Manchester HQ, purpose-led co-operative — aligns with your mission lean and consumer-commercial skills.",brk:"Apply via co-operative.coop careers.",tip:"Values-driven employer; lead with purpose + commercial rigour.",prep:"Customer strategy + a values-aligned commercial idea."},
+   {cat:"B2C",co:"ASDA",loc:"Leeds",role:"Commercial / Customer Strategy Manager",sal:"£45K–£70K",prio:"High",fit:74,sponsor:"likely",tags:["Retail","Leeds HQ"],pitch:"Leeds HQ supermarket — the biggest commercial employer in the city, ~25 min from York. Strong 'land near Dipali' anchor.",brk:"Apply via asda.jobs; large Leeds head office.",tip:"Best big-brand B2C base in Leeds for you.",prep:"Category/commercial cases; quantify portfolio results."},
+   {cat:"B2C",co:"On the Beach",loc:"Manchester",role:"Growth / Trading Manager",sal:"£45K–£65K",prio:"Med",fit:71,sponsor:"likely",tags:["Travel","Ecommerce"],pitch:"Manchester online travel retailer; performance + CRO heavy, suits your funnel skills.",brk:"Apply via onthebeach careers / LinkedIn.",tip:"Travel e-commerce, not betting — clean fit.",prep:"Conversion and lifecycle metrics."},
+   {cat:"B2C",co:"PZ Cussons",loc:"Manchester",role:"Brand / Commercial Manager",sal:"£48K–£70K",prio:"Med-High",fit:75,sponsor:"likely",tags:["FMCG","Beauty"],pitch:"Manchester-HQ FMCG (Imperial Leather, Sanctuary) — your beauty/skincare brand work transfers cleanly.",brk:"Apply via pzcussons.com careers.",tip:"FMCG brand-management route; structured hiring.",prep:"Brand P&L and category growth."},
+
+   {cat:"B2B / Tech",co:"Matillion",loc:"Manchester",role:"Growth / Commercial Marketing Manager",sal:"£50K–£72K",prio:"Med-High",fit:73,sponsor:"likely",tags:["SaaS","Data"],pitch:"Manchester data-SaaS scale-up; your B2B lead-gen and HubSpot build at UrbanChain is the relevant story.",brk:"Apply via matillion.com careers.",tip:"Known Manchester tech employer that has sponsored.",prep:"B2B pipeline metrics: MQL→SQL, payback, ABM."},
+   {cat:"B2B / Tech",co:"Peak (AI)",loc:"Manchester",role:"Commercial / Growth Manager",sal:"£48K–£70K",prio:"Med-High",fit:72,sponsor:"likely",tags:["AI","SaaS"],pitch:"Manchester AI scale-up; your AI-automation/Claude work plus commercial framing is an unusual edge here.",brk:"Apply via peak.ai careers.",tip:"AI angle differentiates you — lead with the UrbanChain AI framework.",prep:"How AI changes a commercial workflow; a concrete example."},
+   {cat:"B2B / Tech",co:"BJSS",loc:"Leeds",role:"Business / Growth Consultant",sal:"£48K–£70K",prio:"Med",fit:68,sponsor:"likely",tags:["Tech consultancy","Leeds"],pitch:"Leeds-founded tech consultancy; commercial/consulting roles with a delivery edge.",brk:"Apply via bjss.com careers.",tip:"Strong Leeds engineering/consulting base.",prep:"Consulting cases with a tech-delivery flavour."},
+   {cat:"B2B / Tech",co:"Salesforce",loc:"Manchester",role:"Business Value / Strategy",sal:"£55K–£85K",prio:"Med-High",fit:70,sponsor:"known",tags:["SaaS","Enterprise"],pitch:"Manchester office; Business Value/Strategy roles reward commercial storytelling — your strength.",brk:"Apply via salesforce.com/careers; known sponsor.",tip:"Look at Business Value Services / Strategy & Ops.",prep:"ROI/business-case framing for enterprise buyers."},
+   {cat:"B2B / Tech",co:"Amazon",loc:"Manchester",role:"Commercial / Vendor / Program Manager",sal:"£50K–£80K",prio:"Med-High",fit:69,sponsor:"known",tags:["Ecommerce","Ops"],pitch:"Manchester corporate office; data-driven commercial roles suit your analytical, ownership-heavy style.",brk:"Apply via amazon.jobs; reliable sponsor.",tip:"Leadership Principles drive the whole process.",prep:"STAR answers mapped to Amazon Leadership Principles."},
+   {cat:"B2B / Tech",co:"Slalom",loc:"Manchester",role:"Strategy & Growth Consultant",sal:"£55K–£80K",prio:"Med-High",fit:72,sponsor:"likely",tags:["Consulting","Tech"],pitch:"Modern consultancy with a Manchester office; business-strategy roles with a human, build-oriented feel.",brk:"Apply via slalom.com careers.",tip:"Growing UK presence; culture-forward.",prep:"Client-strategy cases + a collaboration story."},
+
+   {cat:"Climate & Purpose",co:"UrbanChain",loc:"Manchester",role:"Growth / Commercial Lead",sal:"£45K–£65K",prio:"High",fit:88,sponsor:"check",tags:["Renewables","Scale-up"],pitch:"You already work here and built the growth function from scratch — the warmest lead on this whole list. Convert the internship to a permanent commercial role.",brk:"Internal conversation first; turn your MBA GTM project into a permanent-role business case.",tip:"Confirm their sponsor status for yr 3+ early.",prep:"Pitch a 12-month growth plan and your own role spec."},
+   {cat:"Climate & Purpose",co:"Octopus Energy",loc:"Manchester / remote",role:"Commercial / Growth Manager",sal:"£50K–£75K",prio:"High",fit:78,sponsor:"likely",tags:["Energy","Purpose"],pitch:"Climate-positive energy giant; your renewable + commercial combination and sustainability projects fit their mission and pace.",brk:"Apply via octopus.energy/careers; non-traditional hiring (they like real work, not just CVs).",tip:"They prize initiative — send a 'here's what I'd do' note.",prep:"A concrete growth idea for one of their products."},
+   {cat:"Climate & Purpose",co:"National Grid",loc:"Leeds / Warwick",role:"Commercial Strategy Analyst",sal:"£48K–£70K",prio:"Med",fit:70,sponsor:"known",tags:["Energy","Infrastructure"],pitch:"Energy-transition infrastructure; structured commercial-strategy roles, reliable sponsor.",brk:"Apply via nationalgrid.com careers.",tip:"Leeds presence; long-term, stable, sponsors.",prep:"Energy-market and regulatory awareness."},
+   {cat:"Climate & Purpose",co:"Drax Group",loc:"Selby / Leeds",role:"Commercial / Strategy Analyst",sal:"£45K–£68K",prio:"Med",fit:69,sponsor:"likely",tags:["Energy","Leeds-area"],pitch:"Renewable energy near Leeds; commercial-strategy roles for someone with your energy + modelling mix.",brk:"Apply via drax.com careers.",tip:"Commutable from Leeds; energy-transition focus.",prep:"Commercial modelling + energy basics."},
+   {cat:"Climate & Purpose",co:"Ohme",loc:"Remote / London",role:"Growth Manager",sal:"£45K–£65K",prio:"Med",fit:74,sponsor:"check",tags:["EV / Climate","Scale-up"],pitch:"EV-charging scale-up; mission-aligned growth role suiting your D2C + climate angle.",brk:"Apply via ohme-ev.com careers; remote-friendly.",tip:"Confirm sponsor status; smaller scale-up.",prep:"Acquisition + lifecycle for a hardware+app product."},
+
+   {cat:"Smaller / Scale-up",co:"StrategiQ",loc:"London / hybrid",role:"Growth / Strategy Lead",sal:"£40K–£60K",prio:"Med-High",fit:80,sponsor:"check",tags:["Agency","Growth"],pitch:"Award-winning 'value creation' marketing+strategy agency — your blend of brand, performance and commercial is their whole pitch.",brk:"Apply via strategiq.co; lead with measurable client growth you've driven.",tip:"Hybrid/London HQ — check remote + sponsor before banking on it.",prep:"A client growth story with hard numbers; agency thinking."},
+   {cat:"Smaller / Scale-up",co:"Code Computerlove",loc:"Manchester",role:"Growth / Product Strategist",sal:"£42K–£60K",prio:"Med",fit:73,sponsor:"check",tags:["Agency","Manchester"],pitch:"Respected Manchester product/digital agency; CRO and experimentation-led, matching your test-and-learn approach.",brk:"Apply via codecomputerlove.com careers.",tip:"Strong Manchester reputation; confirm sponsor.",prep:"An experimentation case: hypothesis → test → result."},
+   {cat:"Smaller / Scale-up",co:"Jaywing",loc:"Leeds / Sheffield",role:"Strategy / Growth Consultant",sal:"£40K–£58K",prio:"Med",fit:71,sponsor:"check",tags:["Agency","Data"],pitch:"Yorkshire data-driven agency; performance + analytics roles near Leeds.",brk:"Apply via jaywing.com careers.",tip:"Regional, data-led; commutable from Leeds.",prep:"A data-into-strategy example."},
+   {cat:"Smaller / Scale-up",co:"DEPT",loc:"Manchester / remote",role:"Growth Strategist",sal:"£42K–£62K",prio:"Med",fit:72,sponsor:"check",tags:["Agency","Digital"],pitch:"Global digital agency with Manchester presence; tech+marketing roles that suit your hybrid profile.",brk:"Apply via deptagency.com careers.",tip:"Confirm sponsor + base location.",prep:"Cross-channel growth case for a client."},
+   {cat:"Smaller / Scale-up",co:"Brainlabs",loc:"Manchester / remote",role:"Growth / Account Strategist",sal:"£40K–£60K",prio:"Med",fit:70,sponsor:"check",tags:["Agency","Performance"],pitch:"Performance-marketing agency; your paid Meta/Google background is the core skill.",brk:"Apply via brainlabsdigital.com careers.",tip:"Performance-heavy; good skill match, smaller sponsor odds.",prep:"A paid-media optimisation that moved a real metric."}
+  ]
+ },
+
+ dipali:{name:"Dipali",accent:"var(--accent-d)",
+  lede:"<b>India-qualified Advocate</b> (AIBE) · ~3 yrs disputes/litigation support · LL.M. Corporate &amp; Commercial (York) · Graduate Route from Sep 2026 (no sponsorship for 2 yrs). Entry = paralegal / legal analyst / in-house support <i>while completing the SQE</i> (likely SQE1 only — confirm exemptions with the SRA). This list goes <b>beyond insurance</b> into corporate, disputes, in-house and Big-4 legal. Confirm sponsorship via the <a href='"+REGISTER+"' target='_blank'>gov.uk register</a>.",
+  cats:["Corporate & Commercial Firms","Disputes & Arbitration","Big 4 Legal / Consulting","In-house Legal (brands)","Smaller / Legal-tech"],
+  roles:[
+   {cat:"Corporate & Commercial Firms",co:"Addleshaw Goddard",loc:"Leeds / Manchester",role:"Corporate / Commercial Paralegal",sal:"£26K–£36K",prio:"High",fit:80,sponsor:"likely",tags:["Top regional","Corporate","SQE route"],pitch:"Flagship corporate firm with both Northern offices; your LL.M. (corporate transactions/governance) plus disputes grounding lets you target their corporate or commercial teams.",brk:"Apply via addleshawgoddard.com careers; ask about paralegal→solicitor + QWE sign-off.",tip:"Strong in both Leeds & Manchester — apply to whichever city you settle.",prep:"Show commercial awareness + research rigour (cite your publications)."},
+   {cat:"Corporate & Commercial Firms",co:"Pinsent Masons",loc:"Leeds / Manchester",role:"Commercial / Corporate Paralegal",sal:"£26K–£35K",prio:"High",fit:78,sponsor:"likely",tags:["International","Corporate"],pitch:"Global firm, strong Northern presence; corporate and commercial teams suit your LL.M. focus.",brk:"Apply via pinsentmasons.com careers.",tip:"Tech/infrastructure sector strengths; align your interest.",prep:"A corporate-transaction concept explained clearly."},
+   {cat:"Corporate & Commercial Firms",co:"DLA Piper",loc:"Leeds / Manchester",role:"Paralegal (Corporate / Litigation)",sal:"£27K–£36K",prio:"High",fit:77,sponsor:"likely",tags:["Global","Disputes"],pitch:"Global firm with both offices; your disputes experience + corporate LL.M. fits either practice.",brk:"Apply via dlapiper.com careers.",tip:"Large international platform; good QWE environment.",prep:"Cross-border awareness — your UNCITRAL insolvency research helps."},
+   {cat:"Corporate & Commercial Firms",co:"Squire Patton Boggs",loc:"Leeds / Manchester",role:"Commercial / Disputes Paralegal",sal:"£26K–£35K",prio:"Med-High",fit:76,sponsor:"likely",tags:["International","Commercial"],pitch:"International firm with Leeds & Manchester offices and strong litigation/commercial teams.",brk:"Apply via squirepattonboggs.com careers.",tip:"Disputes + corporate options under one roof.",prep:"A dispute you supported end-to-end."},
+   {cat:"Corporate & Commercial Firms",co:"Eversheds Sutherland",loc:"Leeds / Manchester",role:"Corporate / Commercial Paralegal",sal:"£26K–£35K",prio:"High",fit:78,sponsor:"likely",tags:["Global","Corporate"],pitch:"Major international firm, both Northern offices; broad corporate/commercial work for your LL.M. profile.",brk:"Apply via eversheds-sutherland.com careers.",tip:"Large QWE pipeline; ask about qualification support.",prep:"Commercial contract fundamentals."},
+   {cat:"Corporate & Commercial Firms",co:"Walker Morris",loc:"Leeds",role:"Commercial / Dispute Resolution Paralegal",sal:"£26K–£34K",prio:"High",fit:79,sponsor:"likely",tags:["Leeds flagship","Disputes"],pitch:"Leeds' home-grown flagship; single-site focus means a deep local network and strong disputes/commercial teams.",brk:"Apply via walkermorris.co.uk careers.",tip:"If you choose Leeds, this is a top target — built for the city.",prep:"Commercial dispute reasoning + Yorkshire-market awareness."},
+   {cat:"Corporate & Commercial Firms",co:"Gowling WLG",loc:"Manchester / Birmingham",role:"Corporate / Commercial Paralegal",sal:"£26K–£35K",prio:"Med-High",fit:74,sponsor:"likely",tags:["International","Corporate"],pitch:"International firm with a strong Manchester corporate team; good for the commercial side of your LL.M.",brk:"Apply via gowlingwlg.com careers.",tip:"Manchester base; tech & life-sciences strengths.",prep:"Corporate transaction basics."},
+   {cat:"Corporate & Commercial Firms",co:"Shoosmiths",loc:"Leeds / Manchester",role:"Commercial / Corporate Paralegal",sal:"£25K–£33K",prio:"Med-High",fit:75,sponsor:"likely",tags:["National","Commercial"],pitch:"Fast-growing national firm in both cities; modern, supportive QWE environment.",brk:"Apply via shoosmiths.com careers.",tip:"Known for good culture + progression.",prep:"Why corporate/commercial over litigation — have the answer."},
+   {cat:"Corporate & Commercial Firms",co:"Irwin Mitchell",loc:"Leeds / Manchester",role:"Paralegal (Commercial / Disputes)",sal:"£25K–£33K",prio:"Med",fit:73,sponsor:"likely",tags:["National","Disputes"],pitch:"Large national firm; broad practice, both offices, accessible entry routes.",brk:"Apply via irwinmitchell.com careers.",tip:"High-volume hirer; good first UK foothold.",prep:"Caseload-management evidence."},
+   {cat:"Corporate & Commercial Firms",co:"Womble Bond Dickinson",loc:"Leeds",role:"Commercial Paralegal",sal:"£25K–£33K",prio:"Med",fit:72,sponsor:"likely",tags:["National","Leeds"],pitch:"Transatlantic firm with a Leeds office; commercial and disputes teams.",brk:"Apply via womblebonddickinson.com careers.",tip:"Solid Leeds option near York.",prep:"Commercial reasoning + research skills."},
+   {cat:"Corporate & Commercial Firms",co:"Hill Dickinson",loc:"Manchester / Leeds",role:"Commercial / Disputes Paralegal",sal:"£25K–£33K",prio:"Med",fit:73,sponsor:"likely",tags:["National","Commercial"],pitch:"National firm with both offices and a broad commercial practice.",brk:"Apply via hilldickinson.com careers.",tip:"Health, marine and commercial strengths.",prep:"A commercial matter you supported."},
+   {cat:"Corporate & Commercial Firms",co:"TLT LLP",loc:"Manchester",role:"Commercial Paralegal",sal:"£25K–£33K",prio:"Med",fit:72,sponsor:"likely",tags:["National","Commercial"],pitch:"Growing national firm, strong in Manchester; commercial and digital-economy work.",brk:"Apply via tltsolicitors.com careers.",tip:"Modern, sector-led firm.",prep:"Interest in tech/commercial law."},
+
+   {cat:"Disputes & Arbitration",co:"Freshfields",loc:"Manchester",role:"Disputes Paralegal / Legal Analyst",sal:"£30K–£42K",prio:"Med-High",fit:74,sponsor:"known",tags:["Magic Circle","Arbitration"],pitch:"Magic-Circle Manchester hub with serious disputes/arbitration work — your arbitration LL.M. module + litigation grounding is the pitch.",brk:"Apply via freshfields.com careers (Manchester); competitive.",tip:"Manchester centre handles big-firm disputes work outside London.",prep:"International arbitration basics; a structured dispute analysis."},
+   {cat:"Disputes & Arbitration",co:"Clyde & Co",loc:"Manchester",role:"Commercial Disputes Paralegal",sal:"£27K–£36K",prio:"Med-High",fit:76,sponsor:"likely",tags:["Disputes","International"],pitch:"Beyond insurance, Clyde does broad commercial disputes and arbitration — leverage your disputes track record without being boxed into insurance.",brk:"Apply via clydeco.com careers.",tip:"Frame yourself for commercial disputes/arbitration, not just insurance.",prep:"A cross-border dispute angle."},
+   {cat:"Disputes & Arbitration",co:"Bird & Bird",loc:"Manchester",role:"Commercial / Disputes Paralegal",sal:"£28K–£38K",prio:"Med",fit:72,sponsor:"likely",tags:["Tech law","Disputes"],pitch:"Tech-and-comms specialist with a Manchester office; your AI-and-the-Law module is a genuine differentiator here.",brk:"Apply via twobirds.com careers.",tip:"Lead with legal-tech/AI interest — it's their world.",prep:"A view on AI/tech regulation."},
+   {cat:"Disputes & Arbitration",co:"Fieldfisher",loc:"Manchester",role:"Dispute Resolution Paralegal",sal:"£27K–£36K",prio:"Med",fit:71,sponsor:"likely",tags:["Disputes","Tech"],pitch:"Growing Manchester office with commercial disputes and tech-sector work.",brk:"Apply via fieldfisher.com careers.",tip:"Sector-led; align to tech/commercial.",prep:"Disputes reasoning + sector interest."},
+   {cat:"Disputes & Arbitration",co:"Mills & Reeve",loc:"Manchester / Leeds",role:"Commercial Disputes Paralegal",sal:"£26K–£34K",prio:"Med",fit:72,sponsor:"likely",tags:["National","Disputes"],pitch:"Highly-rated national firm; broad commercial disputes work in both cities.",brk:"Apply via mills-reeve.com careers.",tip:"Consistently top-ranked for culture.",prep:"A dispute you helped resolve."},
+
+   {cat:"Big 4 Legal / Consulting",co:"Deloitte Legal",loc:"Leeds / Manchester",role:"Legal / Contracts Analyst",sal:"£30K–£44K",prio:"High",fit:79,sponsor:"known",tags:["Big 4","Commercial","Sponsor"],pitch:"Multidisciplinary legal arm of a Big 4 — commercial, tech-enabled, and a strong sponsor. Your commercial LL.M. + business sense fit better here than in pure litigation.",brk:"Apply via deloitte.com careers (Legal/Legal Management Consulting).",tip:"Big 4 legal arms sponsor reliably and value commercial mindset.",prep:"How you'd make a legal process more efficient — they think like consultants."},
+   {cat:"Big 4 Legal / Consulting",co:"EY Law",loc:"Manchester / Leeds",role:"Legal Analyst / Paralegal",sal:"£30K–£44K",prio:"High",fit:78,sponsor:"known",tags:["Big 4","Commercial"],pitch:"Corporate/commercial legal services inside EY; strong sponsor, commercial focus, both Northern offices.",brk:"Apply via ey.com careers (Law).",tip:"Aligns with your corporate LL.M. and AI/legal-tech interest.",prep:"A commercial-legal problem framed for a business client."},
+   {cat:"Big 4 Legal / Consulting",co:"KPMG Law",loc:"Leeds / Manchester",role:"Legal Services Analyst",sal:"£30K–£44K",prio:"Med-High",fit:77,sponsor:"known",tags:["Big 4","Legal Ops"],pitch:"Legal managed-services and advisory; Leeds is a major KPMG hub — relevant + reliable sponsor.",brk:"Apply via kpmgcareers.co.uk (Law).",tip:"Leeds office is one of their largest.",prep:"Interest in legal operations + tech."},
+   {cat:"Big 4 Legal / Consulting",co:"PwC Legal",loc:"Manchester / Leeds",role:"Legal / Contracts Analyst",sal:"£30K–£44K",prio:"Med-High",fit:77,sponsor:"known",tags:["Big 4","Commercial"],pitch:"Commercial, regulatory and entity-governance legal work inside PwC; strong sponsor, both offices.",brk:"Apply via pwc.co.uk careers (Legal).",tip:"Governance focus suits your corporate-governance module.",prep:"A governance/compliance scenario."},
+   {cat:"Big 4 Legal / Consulting",co:"Axiom",loc:"Remote / national",role:"Legal Analyst (Commercial Contracts)",sal:"£32K–£48K",prio:"Med",fit:73,sponsor:"check",tags:["ALSP","Contracts"],pitch:"Alternative legal services — high-volume commercial contracting, flexible, values commercial fluency over PQE.",brk:"Apply via axiomlaw.com careers; remote-friendly.",tip:"Good income while you sit SQE1; confirm sponsor.",prep:"Contract-review speed + accuracy examples."},
+   {cat:"Big 4 Legal / Consulting",co:"Elevate / Consilio",loc:"Remote / Manchester",role:"Legal Analyst / Document Review",sal:"£28K–£42K",prio:"Med",fit:70,sponsor:"check",tags:["ALSP","eDiscovery"],pitch:"Legal-managed-services roles (review, contracts) that take overseas-qualified lawyers and pay while you qualify.",brk:"Apply via elevate.law / consilio.com careers.",tip:"Pragmatic stepping-stone; confirm sponsor for yr 3+.",prep:"Attention-to-detail and volume-handling evidence."},
+
+   {cat:"In-house Legal (brands)",co:"ASDA",loc:"Leeds",role:"In-house Legal / Contracts Analyst",sal:"£32K–£48K",prio:"High",fit:75,sponsor:"likely",tags:["Retail","Leeds HQ","In-house"],pitch:"Leeds-HQ retailer with a large in-house legal team; commercial-contracts roles suit your LL.M. and don't always need E&W qualification at analyst level — a Graduate-Route advantage.",brk:"Apply via asda.jobs (Legal).",tip:"Best big in-house legal base in Leeds, near York.",prep:"Commercial contracts + retail-sector awareness."},
+   {cat:"In-house Legal (brands)",co:"Co-op",loc:"Manchester",role:"Legal / Governance Analyst",sal:"£32K–£46K",prio:"Med-High",fit:74,sponsor:"likely",tags:["Retail","Purpose","In-house"],pitch:"Manchester-HQ, purpose-led; in-house legal/governance roles align with your corporate-governance module.",brk:"Apply via co-operative.coop careers (Legal).",tip:"Values-driven; good in-house entry.",prep:"A governance/compliance angle."},
+   {cat:"In-house Legal (brands)",co:"Auto Trader",loc:"Manchester",role:"Commercial / Legal Counsel Support",sal:"£35K–£50K",prio:"Med-High",fit:73,sponsor:"known",tags:["Tech","In-house"],pitch:"FTSE 100 tech in Manchester; commercial/legal support roles with a modern, tech-forward legal team.",brk:"Apply via careers.autotrader.co.uk (Legal).",tip:"Tech in-house values legal-tech/AI interest.",prep:"Commercial-contract basics + tech curiosity."},
+   {cat:"In-house Legal (brands)",co:"THG",loc:"Manchester",role:"In-house Legal / Contracts",sal:"£32K–£46K",prio:"Med",fit:71,sponsor:"likely",tags:["Ecommerce","In-house"],pitch:"Fast-paced Manchester e-commerce group; broad in-house commercial/contracts exposure early.",brk:"Apply via thg.com/careers (Legal).",tip:"High pace = fast learning + broad exposure.",prep:"Commercial contracting across many brands."},
+   {cat:"In-house Legal (brands)",co:"Sky",loc:"Leeds / Manchester",role:"Legal / Commercial Affairs Analyst",sal:"£34K–£50K",prio:"Med-High",fit:72,sponsor:"known",tags:["Media","In-house"],pitch:"Major media employer with Leeds & Manchester sites and a large in-house legal function; reliable sponsor.",brk:"Apply via careers.sky.com (Legal).",tip:"Media/content commercial law; both cities.",prep:"Commercial + IP/contract basics."},
+   {cat:"In-house Legal (brands)",co:"BBC",loc:"Salford (Manchester)",role:"Legal / Rights / Compliance Analyst",sal:"£32K–£46K",prio:"Med",fit:70,sponsor:"likely",tags:["Media","Public","In-house"],pitch:"MediaCity Salford; rights, compliance and commercial legal roles in a major public-service broadcaster.",brk:"Apply via bbc.co.uk/careers (Legal).",tip:"Structured, values-led; good QWE potential.",prep:"Compliance/regulatory awareness."},
+   {cat:"In-house Legal (brands)",co:"Booking.com",loc:"Manchester",role:"Legal / Commercial Counsel Support",sal:"£35K–£52K",prio:"Med",fit:70,sponsor:"known",tags:["Tech","In-house"],pitch:"Manchester tech office; commercial/partnerships legal support in a global travel-tech platform.",brk:"Apply via careers.booking.com (Legal).",tip:"Global tech; strong sponsor.",prep:"Commercial-contract + cross-border basics."},
+   {cat:"In-house Legal (brands)",co:"Deliveroo",loc:"Manchester",role:"Legal / Commercial Analyst",sal:"£34K–£50K",prio:"Med",fit:69,sponsor:"likely",tags:["Tech","In-house"],pitch:"Manchester commercial hub; fast in-house legal/commercial roles with broad exposure.",brk:"Apply via careers.deliveroo.co.uk (Legal/Commercial).",tip:"Fast-paced; good for broad early exposure.",prep:"Commercial reasoning + adaptability."},
+
+   {cat:"Smaller / Legal-tech",co:"Knights plc",loc:"Manchester / Leeds",role:"Corporate / Commercial Paralegal",sal:"£25K–£33K",prio:"Med",fit:72,sponsor:"check",tags:["Listed firm","Commercial"],pitch:"Fast-growing listed legal business across Northern cities; pragmatic, business-like culture.",brk:"Apply via knightsplc.com careers.",tip:"Acquisitive and expanding — many openings.",prep:"Commercial awareness."},
+   {cat:"Smaller / Legal-tech",co:"JMW Solicitors",loc:"Manchester",role:"Commercial / Disputes Paralegal",sal:"£24K–£32K",prio:"Med",fit:71,sponsor:"check",tags:["Manchester","Commercial"],pitch:"Well-regarded Manchester independent firm with strong commercial and disputes teams.",brk:"Apply via jmw.co.uk careers.",tip:"Good Manchester independent option.",prep:"A commercial matter you supported."},
+   {cat:"Smaller / Legal-tech",co:"Kuits",loc:"Manchester",role:"Corporate / Commercial Paralegal",sal:"£24K–£31K",prio:"Med",fit:70,sponsor:"check",tags:["Manchester","Corporate"],pitch:"Manchester commercial firm with a friendly corporate team; accessible first UK legal role.",brk:"Apply via kuits.com careers.",tip:"Smaller team = broad early responsibility.",prep:"Why corporate/commercial."},
+   {cat:"Smaller / Legal-tech",co:"Schofield Sweeney",loc:"Leeds",role:"Commercial Paralegal",sal:"£23K–£30K",prio:"Med",fit:69,sponsor:"check",tags:["Leeds","Commercial"],pitch:"Independent Leeds/Yorkshire firm; commercial work and a realistic foot in the door near York.",brk:"Apply via schofieldsweeney.co.uk careers.",tip:"Local Leeds option; confirm sponsor for later.",prep:"Local commercial-market interest."},
+   {cat:"Smaller / Legal-tech",co:"Luminance / Robin AI",loc:"Remote / London",role:"Legal Engineer / Analyst (AI)",sal:"£30K–£45K",prio:"Med",fit:74,sponsor:"check",tags:["Legal-tech","AI & Law"],pitch:"Legal-AI companies — your 'AI and the Law' module + tech curiosity is a rare, on-point combination here.",brk:"Apply via luminance.com / robinai.com careers; remote-friendly.",tip:"Lead hard on the AI-and-law angle; smaller sponsor odds — verify.",prep:"A view on how AI changes contract/legal work."}
+  ]
+ }
+};
+
+const mem={};
+async function loadVal(key){try{const r=await window.storage.get(key);return r?r.value:(mem[key]??null);}catch(e){return mem[key]??null;}}
+async function saveVal(key,val){mem[key]=val;try{await window.storage.set(key,val);}catch(e){}}
+const k=(p,id,f)=>`tracker2:${p}:${id}:${f}`;
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");}
+
+const STAGES=["Not Applied","Researching","Applied","Interviewing","Offer","Rejected","Parked"];
+const PRIOS=["High","Med-High","Medium","Low"];
+const SPON={known:["Known sponsor","#2f7a4a"],likely:["Likely sponsor","#7a6a2e"],check:["Check register","#9a4a4a"]};
+let current="nikita", activeCat="All";
+
+function tabs(){
+  const t=document.getElementById("tabs");t.innerHTML="";
+  Object.keys(PEOPLE).forEach(p=>{
+    const b=document.createElement("button");b.className="tab";b.dataset.active=(p===current);
+    b.innerHTML=`${PEOPLE[p].name} <span class="count">· ${PEOPLE[p].roles.length}</span>`;
+    b.onclick=()=>{current=p;activeCat="All";render();};t.appendChild(b);
+  });
+}
+function filters(){
+  const f=document.getElementById("filters");f.innerHTML="";
+  ["All",...PEOPLE[current].cats].forEach(c=>{
+    const b=document.createElement("button");b.className="fchip";b.dataset.on=(c===activeCat);
+    const n=c==="All"?PEOPLE[current].roles.length:PEOPLE[current].roles.filter(r=>r.cat===c).length;
+    b.textContent=`${c} (${n})`;b.onclick=()=>{activeCat=c;render();};f.appendChild(b);
+  });
+}
+function links(person,r){
+  const q=encodeURIComponent(`${r.co} ${r.role} ${r.loc} careers`);
+  const li=encodeURIComponent(`${r.role} ${r.loc}`);
+  const net=person==="nikita"
+    ?{label:"Bath alumni",url:`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(r.co+" University of Bath")}`}
+    :{label:"York alumni",url:`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(r.co+" University of York LLM")}`};
+  return{careers:`https://www.google.com/search?q=${q}`,network:net,linkedin:`https://www.linkedin.com/jobs/search/?keywords=${li}`,google:`https://www.google.com/search?q=${encodeURIComponent(r.co+" "+r.role)}`};
+}
+
+async function render(){
+  tabs();filters();
+  const P=PEOPLE[current];
+  document.getElementById("lede").innerHTML=`<div class="strip" style="background:${P.accent}"></div>${P.lede}`;
+  const root=document.getElementById("cards");root.innerHTML="";
+  const groups=activeCat==="All"?P.cats:[activeCat];
+  for(const cat of groups){
+    const rolesIn=P.roles.filter(r=>r.cat===cat);
+    if(!rolesIn.length) continue;
+    const gh=document.createElement("div");gh.className="grouphead";gh.textContent=cat;root.appendChild(gh);
+    for(const r of rolesIn){
+      const id=slug(r.co);
+      const L=links(current,r);
+      const stage=(await loadVal(k(current,id,"stage")))||"Not Applied";
+      const contacts=(await loadVal(k(current,id,"contacts")))||"";
+      const last=(await loadVal(k(current,id,"last")))||"";
+      const next=(await loadVal(k(current,id,"next")))||"";
+      const prioU=(await loadVal(k(current,id,"prio_user")))||r.prio;
+      const notes=(await loadVal(k(current,id,"notes")))||"";
+      const sp=SPON[r.sponsor];
+      const card=document.createElement("div");card.className="card";
+      card.innerHTML=`
+        <div class="chead">
+          <div>
+            <div class="co" style="border-bottom:3px solid ${P.accent}">${r.co}</div>
+            <div class="meta">${r.loc} · <span class="role">${r.role}</span> · ${r.sal}</div>
+          </div>
+          <div class="stagewrap">
+            <label>Stage <span class="saved" id="sv-${id}">saved</span></label>
+            <select id="st-${id}">${STAGES.map(s=>`<option ${s===stage?"selected":""}>${s}</option>`).join("")}</select>
+            <div class="fit"><span class="lab">Fit</span><span class="pct" style="color:${P.accent}">${r.fit}%</span>
+              <div class="track"><i style="width:${r.fit}%;background:${P.accent}"></i></div></div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="pill hi">${r.prio} priority</span>
+          <span class="pill" style="color:${sp[1]};border-color:${sp[1]}33;background:${sp[1]}12">${sp[0]}</span>
+          <span class="pill cat">${r.cat}</span>
+          ${r.tags.map(t=>`<span class="pill">${t}</span>`).join("")}
+        </div>
+        <div class="box pitch"><h4>Your pitch — lead with this</h4><p>${r.pitch}</p></div>
+        <div class="box brk"><h4>How to break in</h4><p>${r.brk}</p></div>
+        <div class="two">
+          <div class="box tip"><h4>${current==="nikita"?"Network tip":"SQE / network tip"}</h4><p>${r.tip}</p></div>
+          <div class="box tip"><h4>Interview prep</h4><p>${r.prep}</p></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Key contacts</label><input id="ct-${id}" placeholder="Names, LinkedIn, recruiter emails…" value="${esc(contacts)}"></div>
+          <div class="field"><label>Last action</label><input id="la-${id}" placeholder="e.g. Applied 12 May 2026…" value="${esc(last)}"></div>
+          <div class="field"><label>Next action</label><input id="nx-${id}" placeholder="e.g. Follow up in 1 week…" value="${esc(next)}"></div>
+          <div class="field"><label>Priority</label><select id="pu-${id}">${PRIOS.map(p=>`<option ${p===prioU?"selected":""}>${p}</option>`).join("")}</select></div>
+          <div class="field full"><label>Notes</label><textarea id="no-${id}" placeholder="Salary info, culture, contacts met…">${esc(notes)}</textarea></div>
+        </div>
+        <div class="links">
+          <a class="primary" href="${L.careers}" target="_blank" rel="noopener">Open careers →</a>
+          <a href="${L.network.url}" target="_blank" rel="noopener">${L.network.label}</a>
+          <a href="${L.linkedin}" target="_blank" rel="noopener">LinkedIn jobs</a>
+          <a href="${L.google}" target="_blank" rel="noopener">Google</a>
+        </div>`;
+      root.appendChild(card);
+      const flash=()=>{const s=document.getElementById("sv-"+id);if(s){s.classList.add("show");setTimeout(()=>s.classList.remove("show"),900);}};
+      bind("st-"+id,"change",v=>{saveVal(k(current,id,"stage"),v);flash();});
+      bind("ct-"+id,"input",v=>{saveVal(k(current,id,"contacts"),v);flash();});
+      bind("la-"+id,"input",v=>{saveVal(k(current,id,"last"),v);flash();});
+      bind("nx-"+id,"input",v=>{saveVal(k(current,id,"next"),v);flash();});
+      bind("pu-"+id,"change",v=>{saveVal(k(current,id,"prio_user"),v);flash();});
+      bind("no-"+id,"input",v=>{saveVal(k(current,id,"notes"),v);flash();});
+    }
+  }
+}
+function bind(id,evt,fn){const el=document.getElementById(id);if(el)el.addEventListener(evt,e=>fn(e.target.value));}
+function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+render();
+</script>
+</body>
+</html>
